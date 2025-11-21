@@ -3,6 +3,7 @@ import numpy as np
 
 ATOM_COLOR = BLUE_C
 BOND_COLOR = BLUE_C
+ELECTRON_COLOR = YELLOW
 
 class TitleCard(Scene):
     def construct(self):
@@ -11,7 +12,7 @@ class TitleCard(Scene):
         self.wait(2)
         self.play(FadeOut(title))
 
-class OrganicChemScene(Scene):
+class Introduction(Scene):
     def construct(self):
         # Heading 1: Organic chemistry definition
         heading = MarkupText("<b>Organic chemistry is the\nchemistry of carbon compounds.</b>", font_size=36)
@@ -105,3 +106,160 @@ class OrganicChemScene(Scene):
 
         # final pause as requested
         self.wait(2)
+
+
+from manim import *
+
+ATOM_COLOR = BLUE_C
+BOND_COLOR = BLUE_C
+
+class Fundamental_Title(Scene):
+    def construct(self):
+        heading = MarkupText(
+            "<b>FUNDAMENTAL CONCEPTS OF\nORGANIC REACTION MECHANISMS</b>",
+            font_size=32
+        )
+        self.play(Write(heading))
+        self.wait(1)
+
+        # Move to top-left and scale down at the same time
+        self.play(
+            heading.animate.scale(0.4).to_corner(UL, buff=0.3),
+            run_time=2
+        )
+        self.wait(1)
+ 
+
+        
+
+
+class Fundamental_SubstrateToProduct(Scene):
+    def construct(self):
+        heading = MarkupText(
+            "<b>FUNDAMENTAL CONCEPTS OF\nORGANIC REACTION MECHANISMS</b>",
+            font_size=32
+        )
+        heading.scale(0.4).to_corner(UL, buff=0.3)
+        self.add(heading)
+
+        substrate_box = RoundedRectangle(corner_radius=0.2, width=3, height=1.2)
+        substrate_label = Text("Substrate\n(organic molecule)", font_size=26)
+        substrate_group = VGroup(substrate_box, substrate_label).arrange(DOWN, buff=0.1)
+        substrate_group.to_edge(LEFT).shift(1.5 * DOWN)
+
+        reagent_circle = Circle(radius=0.5)
+        reagent_label = Text("Attacking\nreagent", font_size=24)
+        reagent_group = VGroup(reagent_circle, reagent_label).arrange(DOWN, buff=0.2)
+        reagent_group.next_to(substrate_group, UP, buff=0.8)
+
+        intermediate_box = RoundedRectangle(corner_radius=0.2, width=3, height=1.2)
+        intermediate_label = Text("[Intermediate]", font_size=26)
+        intermediate_group = VGroup(intermediate_box, intermediate_label).arrange(DOWN, buff=0.1)
+        intermediate_group.next_to(substrate_group, RIGHT, buff=2)
+
+        product_box = RoundedRectangle(corner_radius=0.2, width=3, height=1.2)
+        product_label = Text("Products", font_size=26)
+        product_group = VGroup(product_box, product_label).arrange(DOWN, buff=0.1)
+        product_group.next_to(intermediate_group, RIGHT, buff=2)
+
+        arrow1 = Arrow(substrate_group.get_right(), intermediate_group.get_left(), buff=0.2)
+        arrow2 = Arrow(intermediate_group.get_right(), product_group.get_left(), buff=0.2)
+
+        self.add(substrate_group, reagent_group, intermediate_group, product_group, arrow1, arrow2)  # Pre-add to avoid animation issues
+        # self.play(FadeIn(substrate_group), FadeIn(reagent_group))
+        # self.play(Create(arrow1), FadeIn(intermediate_group))
+        # self.play(Create(arrow2), FadeIn(product_group))
+
+        bullet = MarkupText(
+            "Substrate reacts with an attacking reagent →\n"
+            "forms an <b>intermediate</b> and finally <b>products</b>.",
+            font_size=26
+        ).next_to(intermediate_box, UP, buff=1)
+        bullet.move_to(RIGHT*1.5 + UP*1)
+        self.play(FadeIn(bullet))
+        self.wait(2)
+
+A = Dot(color=ATOM_COLOR).shift(2 * LEFT + 0.5 * DOWN)
+B = Dot(color=ATOM_COLOR).shift(2 * RIGHT + 0.5 * DOWN)
+
+bullet2 = MarkupText(
+    "<b>Curved arrows show movement of electrons,</b>\n"
+    "not the movement of atoms.",
+    font_size=26
+).shift(UP * 2)
+
+bullet3 = MarkupText(
+    "<b>Full arrowhead:</b> movement of <b>two</b> electrons\n"
+    "<b>Half-headed arrow:</b> movement of <b>one</b> electron.",
+    font_size=26
+).shift(UP * 2)
+
+heading = MarkupText(
+    "<b>FUNDAMENTAL CONCEPTS OF\nORGANIC REACTION MECHANISMS</b>",
+    font_size=32
+)
+heading.scale(0.4).to_corner(UL, buff=0.3)
+
+bond = Line(A.get_center(), B.get_center(), color=BOND_COLOR, stroke_width=4)
+class Fundamental_CurvedArrows(Scene):
+    def construct(self):
+
+        self.add(heading)
+        # Curved arrows = electrons move, not atoms
+        self.play(FadeIn(bullet2))
+
+        electrons = VGroup(
+            Dot(A.get_center() + 0.3 * UP, radius=0.05),
+            Dot(A.get_center() + 0.15 * UP + 0.15 * RIGHT, radius=0.05),
+        )
+        curved_arrow = CurvedArrow(
+            A.get_center() + 0.3 * UP,
+            B.get_center() + 0.3 * UP,
+            radius=2
+        )
+
+        self.play(Create(A), Create(B), Create(bond))
+        self.play(FadeIn(electrons))
+        self.play(Create(curved_arrow))
+        self.play(electrons.animate.shift(4 * RIGHT), run_time=1.5)
+        self.wait(1)
+
+class Fundamental_CurvedArrows2(Scene):
+    def construct(self):
+        self.add(heading)
+
+        # Full vs half-headed
+
+        self.play(Transform(bullet2, bullet3))
+        self.play(*map(FadeOut, [A, B, bond, electrons, curved_arrow]))
+
+        tail1 = Dot(2 * LEFT + 0.5 * DOWN, radius=0.05)
+        e_pair = VGroup(
+            Dot(tail1.get_center() + 0.2 * DOWN + 0.12 * LEFT, radius=0.04),
+            Dot(tail1.get_center() + 0.2 * DOWN + 0.12 * RIGHT, radius=0.04),
+        )
+        full_arrow = CurvedArrow(
+            tail1.get_center(),
+            tail1.get_center() + 3 * RIGHT,
+            radius=-1.5
+        )
+        label_full = Text("2 electrons", font_size=24).next_to(full_arrow, DOWN, buff=0.3)
+
+        tail2 = Dot(1 * RIGHT + 0.5 * DOWN, radius=0.05)
+        single_e = Dot(tail2.get_center() + 0.2 * DOWN, radius=0.04)
+        half_arrow = CurvedArrow(
+            tail2.get_center(),
+            tail2.get_center() + 3 * RIGHT,
+            radius=-1.5
+        )
+        label_half = Text("1 electron", font_size=24).next_to(half_arrow, DOWN, buff=0.3)
+
+        self.play(FadeIn(tail1), FadeIn(e_pair))
+        self.play(Create(full_arrow), FadeIn(label_full))
+        self.play(FadeIn(tail2), FadeIn(single_e))
+        self.play(Create(half_arrow), FadeIn(label_half))
+        self.wait(2)
+
+
+
+ 
