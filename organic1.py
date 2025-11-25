@@ -4,6 +4,7 @@ import numpy as np
 ATOM_COLOR = BLUE_C
 BOND_COLOR = BLUE_C
 ELECTRON_COLOR = YELLOW
+ 
 
 class TitleCard(Scene):
     def construct(self):
@@ -262,15 +263,36 @@ class Fundamental_CurvedArrows2(Scene):
 
         self.play(FadeIn(single_e))
 
-        # Full arrow (arrow1) from tail1 to head
+        # half arrow (arrow1) from tail1 to head
         half_arrow = CurvedArrow(
             tail2.get_center(),
             tail2.get_center() + 3 * RIGHT,
-            radius=-1.5
+            radius=-1.5,
+            tip_length=0,   # remove built-in tip
         )
+        # Compute tangent at the end
+        points = half_arrow.get_points()
+        tangent_vector = points[-1] - points[-2]
+        angle = np.arctan2(tangent_vector[1], tangent_vector[0])
+
+        # Create a vertical half-triangle tip at origin
+        tip = Polygon(
+            [0, 0, 0],        # tip
+            [-0.15, 0.15, 0], # top-left (half of base)
+            [-0.15, 0, 0]     # bottom-left (half of base)
+        ).set_fill(WHITE, opacity=1).set_stroke(width=0)
+
+        # Rotate tip along tangent
+        tip.rotate(angle, about_point=tip.get_vertices()[0])
+
+        # Move tip to the arrow end
+        tip.shift(half_arrow.get_end() - tip.get_vertices()[0])
+
+        # self.add(tip)
+
         label_half = Text("1 electron", font_size=24).next_to(half_arrow, DOWN, buff=0.3)
 
-        self.play(Create(half_arrow), FadeIn(label_half))
+        self.play(Create(half_arrow),Create(tip), FadeIn(label_half))
 
         self.play(single_e.animate.shift(3 * RIGHT), run_time=1.5)
 
