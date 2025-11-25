@@ -165,10 +165,10 @@ class Fundamental_SubstrateToProduct(Scene):
         arrow1 = Arrow(substrate_group.get_right(), intermediate_group.get_left(), buff=0.2)
         arrow2 = Arrow(intermediate_group.get_right(), product_group.get_left(), buff=0.2)
 
-        self.add(substrate_group, reagent_group, intermediate_group, product_group, arrow1, arrow2)  # Pre-add to avoid animation issues
-        # self.play(FadeIn(substrate_group), FadeIn(reagent_group))
-        # self.play(Create(arrow1), FadeIn(intermediate_group))
-        # self.play(Create(arrow2), FadeIn(product_group))
+        # self.add(substrate_group, reagent_group, intermediate_group, product_group, arrow1, arrow2)  # Pre-add to avoid animation issues
+        self.play(FadeIn(substrate_group), FadeIn(reagent_group))
+        self.play(Create(arrow1), FadeIn(intermediate_group))
+        self.play(Create(arrow2), FadeIn(product_group))
 
         bullet = MarkupText(
             "Substrate reacts with an attacking reagent →\n"
@@ -177,7 +177,7 @@ class Fundamental_SubstrateToProduct(Scene):
         ).next_to(intermediate_box, UP, buff=1)
         bullet.move_to(RIGHT*1.5 + UP*1)
         self.play(FadeIn(bullet))
-        self.wait(2)
+        self.wait(5)
 
 A = Dot(color=ATOM_COLOR).shift(2 * LEFT + 0.5 * DOWN)
 B = Dot(color=ATOM_COLOR).shift(2 * RIGHT + 0.5 * DOWN)
@@ -200,7 +200,19 @@ heading = MarkupText(
 )
 heading.scale(0.4).to_corner(UL, buff=0.3)
 
+electrons = VGroup(
+    Dot(A.get_center() + 0.3 * UP, radius=0.05),
+    Dot(A.get_center() + 0.15 * UP + 0.15 * RIGHT, radius=0.05),
+)
+
+curved_arrow = CurvedArrow(
+    A.get_center() + 0.3 * UP,
+    B.get_center() + 0.3 * UP,
+    radius=2
+)
+
 bond = Line(A.get_center(), B.get_center(), color=BOND_COLOR, stroke_width=4)
+
 class Fundamental_CurvedArrows(Scene):
     def construct(self):
 
@@ -208,36 +220,32 @@ class Fundamental_CurvedArrows(Scene):
         # Curved arrows = electrons move, not atoms
         self.play(FadeIn(bullet2))
 
-        electrons = VGroup(
-            Dot(A.get_center() + 0.3 * UP, radius=0.05),
-            Dot(A.get_center() + 0.15 * UP + 0.15 * RIGHT, radius=0.05),
-        )
-        curved_arrow = CurvedArrow(
-            A.get_center() + 0.3 * UP,
-            B.get_center() + 0.3 * UP,
-            radius=2
-        )
-
         self.play(Create(A), Create(B), Create(bond))
         self.play(FadeIn(electrons))
         self.play(Create(curved_arrow))
         self.play(electrons.animate.shift(4 * RIGHT), run_time=1.5)
         self.wait(1)
+        self.play(*map(FadeOut, [A, B, bond, electrons, curved_arrow]))
+        self.wait(1)
 
 class Fundamental_CurvedArrows2(Scene):
     def construct(self):
-        self.add(heading)
-
         # Full vs half-headed
 
-        self.play(Transform(bullet2, bullet3))
-        self.play(*map(FadeOut, [A, B, bond, electrons, curved_arrow]))
+        self.add(heading)
 
-        tail1 = Dot(2 * LEFT + 0.5 * DOWN, radius=0.05)
+        self.play(Transform(bullet2, bullet3))
+
+        # Tail and electron pair (first two dots appear)
+        tail1 = Dot(5 * LEFT + 0.5 * DOWN, radius=0.05)
         e_pair = VGroup(
             Dot(tail1.get_center() + 0.2 * DOWN + 0.12 * LEFT, radius=0.04),
             Dot(tail1.get_center() + 0.2 * DOWN + 0.12 * RIGHT, radius=0.04),
         )
+
+        self.play(FadeIn(e_pair))
+
+        # Full arrow (arrow1) from tail1 to head
         full_arrow = CurvedArrow(
             tail1.get_center(),
             tail1.get_center() + 3 * RIGHT,
@@ -245,8 +253,16 @@ class Fundamental_CurvedArrows2(Scene):
         )
         label_full = Text("2 electrons", font_size=24).next_to(full_arrow, DOWN, buff=0.3)
 
-        tail2 = Dot(1 * RIGHT + 0.5 * DOWN, radius=0.05)
+        self.play(Create(full_arrow), FadeIn(label_full))
+
+        self.play(e_pair.animate.shift(3 * RIGHT), run_time=1.5)
+
+        tail2 = Dot(2 * RIGHT + 0.5 * DOWN, radius=0.05)
         single_e = Dot(tail2.get_center() + 0.2 * DOWN, radius=0.04)
+
+        self.play(FadeIn(single_e))
+
+        # Full arrow (arrow1) from tail1 to head
         half_arrow = CurvedArrow(
             tail2.get_center(),
             tail2.get_center() + 3 * RIGHT,
@@ -254,11 +270,14 @@ class Fundamental_CurvedArrows2(Scene):
         )
         label_half = Text("1 electron", font_size=24).next_to(half_arrow, DOWN, buff=0.3)
 
-        self.play(FadeIn(tail1), FadeIn(e_pair))
-        self.play(Create(full_arrow), FadeIn(label_full))
-        self.play(FadeIn(tail2), FadeIn(single_e))
         self.play(Create(half_arrow), FadeIn(label_half))
+
+        self.play(single_e.animate.shift(3 * RIGHT), run_time=1.5)
+
         self.wait(2)
+
+
+
 
 
 
